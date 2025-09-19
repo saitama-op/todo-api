@@ -27,7 +27,7 @@ todo-api/
 
 ```bash
 # Clone repo
-git clone https://github.com/your-username/todo-api.git
+git clone https://github.com/saitama-op/todo-api.git
 cd todo-api
 
 # Initialize Go modules
