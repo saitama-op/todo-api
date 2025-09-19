@@ -3,25 +3,26 @@ package main
 import (
 	"net/http"
 	"strconv"
+	"sync/atomic"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Todo struct {
-	ID    int    `json:"id"`
+	ID    int64  `json:"id"`
 	Title string `json:"title"`
 	Done  bool   `json:"done"`
 }
 
 var todos = []Todo{}
-var nextID = 1
+var nextID int64 = 0
 
 func getTodos(c *gin.Context) {
 	c.JSON(http.StatusOK, todos)
 }
 
 func getTodoByID(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
@@ -41,14 +42,13 @@ func createTodo(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Title is required"})
 		return
 	}
-	newTodo.ID = nextID
-	nextID++
+	newTodo.ID = atomic.AddInt64(&nextID, 1)
 	todos = append(todos, newTodo)
 	c.JSON(http.StatusCreated, newTodo)
 }
 
 func updateTodo(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
@@ -70,7 +70,7 @@ func updateTodo(c *gin.Context) {
 }
 
 func deleteTodo(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
 		return
